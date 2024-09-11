@@ -26,6 +26,9 @@ class WhackAMoleGame(QWidget):
     
         # Timer input
         self.timer_limit, ok = QInputDialog.getInt(self, 'Whack-the-Mole Timer', 'Enter the game time in seconds between 15 sec to 60 sec:', min=15, max=60)
+
+        # Mole speed input
+        self.mole_speed, ok = QInputDialog.getInt(self, 'Mole Speed', 'Enter mole speed in seconds (500(Hard) - 1000(Normal)):', min=500, max=1000)
         
         # Timer and score display
         self.time_left = self.timer_limit
@@ -59,7 +62,7 @@ class WhackAMoleGame(QWidget):
         # Timer for the moles to spawn
         self.show_mole_timer = QTimer()
         self.show_mole_timer.timeout.connect(self.show_mole)
-        self.show_mole_timer.start(1000)
+        self.show_mole_timer.start(self.mole_speed)  # Start with user-defined mole speed
 
     # Updates the countdown timer display
     def update_timer(self):
