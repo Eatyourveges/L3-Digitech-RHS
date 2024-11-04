@@ -1,59 +1,52 @@
 
+#include <Wire.h>
 #include <LiquidCrystal_I2C.h>
-#include <DHT.h>
-
-LiquidCrystal_I2C lcd(0x27, 16, 2);
-const int soilMoisturePin = A0;
-const int buttonPin = 2; // Pin for the button
-const int dhtPin = 5; // Pin for the DHT11 sensor
-
-DHT dht(dhtPin, DHT11);
-
-int sensorValue = 0;
-int moisturePercent = 0;
-bool showMoisture = true; // Start with soil moisture display
+#include <DHT11.h>
+LiquidCrystal_I2C lcd(0x27, 20, 4);
+DHT11 dht11(5);
 
 void setup() {
-    lcd.init();
-    lcd.backlight();
-    pinMode(buttonPin, INPUT_PULLUP); // Use internal pull-up resistor
-    dht.begin();
-    
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print("Soil Moisture:");
+  lcd.init();                    
+  lcd.backlight();
+  lcd.setCursor(3, 0);
+  lcd.print("Hello, world!");
+  lcd.setCursor(2, 1);
+  lcd.print("Ywrobot Arduino!");
+  lcd.setCursor(0, 2);
+  lcd.print("Arduino LCM IIC 2004");
+  lcd.setCursor(2, 3);
+  lcd.print("Power By Ec-yuan!");
+  Serial.begin(9600);
 }
 
 void loop() {
-    if (digitalRead(buttonPin) == LOW) {
-        // Button pressed, switch display
-        showMoisture = !showMoisture;
-        delay(200); // Debounce delay
-    }
-
-    if (showMoisture) {
-        // Display soil moisture
-        sensorValue = analogRead(soilMoisturePin);
-        moisturePercent = map(sensorValue, 0, 1020, 100, 0);
-        
-        lcd.setCursor(0, 1);
-        lcd.print("Moisture: ");
-        lcd.print(moisturePercent);
-        lcd.print(" %  "); 
-    } else {
-        // Display DHT11 readings
-        float humidity = dht.readHumidity();
-        float temperature = dht.readTemperature();
-
-        lcd.setCursor(0, 1);
-        lcd.print("Temp: ");
-        lcd.print(temperature);
-        lcd.print("C ");
-        lcd.setCursor(0, 0);
-        lcd.print("Humidity: ");
-        lcd.print(humidity);
-        lcd.print("% ");
-    }
+  int temperature = 0;
+  int humidity = 0;
+  int result = dht11.readTemperatureHumidity(temperature, humidity);
+ 
+  if (result == 0) {
+    Serial.print("Temperature: ");
+    Serial.print(temperature);
+    Serial.print(" °C\tHumidity: ");
+    Serial.print(humidity);
+    Serial.println(" %");
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Temp: ");
+    lcd.print(temperature);
+    lcd.print(" C");
+    lcd.setCursor(0, 1);
+    lcd.print("Humidity: ");
+    lcd.print(humidity);
+    lcd.print(" %");
+  } else {
     
-    delay(1000); // Update every second
+    Serial.println(DHT11::getErrorString(result));
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Error reading");
+    lcd.setCursor(0, 1);
+    lcd.print("from sensor!");
+  }
+  delay(2000);
 }
